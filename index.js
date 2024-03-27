@@ -39,6 +39,10 @@ const initializeTransaction = async (email, amount) => {
 		return response.data
 	} catch (error) {
 		console.error(error.response ? error.response.data : error.message)
+		return res.json({
+			success: false,
+			error: error.response ? error.response.data : error.message,
+		})
 	}
 }
 
@@ -63,19 +67,28 @@ const verifyTransaction = async (reference) => {
 app.get("/paystack", async (req, res) => {
 	const { amount, email } = req.query
 	try {
+		if (!amount || !email) throw Error("Details need to be provided")
 		const response = await initializeTransaction(email, parseInt(amount))
 		if (response.status !== true) {
 			console.log(response)
 			throw Error("Transaction not initialized.")
 		}
+		console.group
+		console.log(`Response from the /paystack route:`)
+		console.log(response)
+		console.groupEnd
 		const authUrl = response.data.authorization_url
-		console.log("Done")
+
 		return res.json({
 			success: true,
 			authUrl,
 		})
 	} catch (error) {
 		console.error(error.message)
+		return res.json({
+			success: false,
+			error: error.response ? error.response.data : error.message,
+		})
 	}
 })
 
