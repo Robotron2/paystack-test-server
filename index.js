@@ -34,6 +34,7 @@ const initializeTransaction = async (email, amount) => {
 		console.error(error.response ? error.response.data : error.message)
 	}
 }
+
 const verifyTransaction = async (reference) => {
 	const url = `https://api.paystack.co/transaction/verify/${reference}`
 	const secretKey = process.env.TEST_SECRET
