@@ -68,15 +68,11 @@ app.get("/paystack", async (req, res) => {
 	const { amount, email } = req.query
 	try {
 		if (!amount || !email) throw Error("Details need to be provided")
-		const response = await initializeTransaction(email, parseInt(amount))
+		const response = await initializeTransaction(email, parseInt(amount) * 100)
 		if (response.status !== true) {
 			console.log(response)
 			throw Error("Transaction not initialized.")
 		}
-		console.group
-		console.log(`Response from the /paystack route:`)
-		console.log(response)
-		console.groupEnd
 		const authUrl = response.data.authorization_url
 
 		return res.json({
