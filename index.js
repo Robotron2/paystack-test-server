@@ -4,7 +4,13 @@ const express = require("express")
 const cors = require("cors")
 
 const app = express()
-app.use(cors())
+app.use(
+	cors({
+		origin: process.env.CLIENT,
+		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+		credentials: true,
+	})
+)
 
 const port = process.env.PORT || 4000
 
