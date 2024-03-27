@@ -16,6 +16,13 @@ const port = process.env.PORT || 4000
 
 const axios = require("axios")
 
+app.get("/", (req, res) => {
+	res.status(200).json({
+		success: true,
+		message: "Server running properly",
+	})
+})
+
 const initializeTransaction = async (email, amount) => {
 	const url = "https://api.paystack.co/transaction/initialize"
 	const secretKey = process.env.TEST_SECRET
@@ -90,13 +97,6 @@ app.get("/paystack/verify", async (req, res) => {
 	} catch (error) {
 		console.error(error.message)
 	}
-})
-
-app.get("/", (req, res) => {
-	res.status(200).json({
-		success: true,
-		message: "Server running properly",
-	})
 })
 
 app.listen(port, () => {
