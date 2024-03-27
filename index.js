@@ -4,7 +4,13 @@ const express = require("express")
 const cors = require("cors")
 
 const app = express()
-app.use(cors())
+app.use(
+	cors({
+		origin: process.env.CLIENT,
+		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+		credentials: true,
+	})
+)
 
 const port = process.env.PORT || 4000
 
@@ -22,6 +28,24 @@ const initializeTransaction = async (email, amount) => {
 				"Content-Type": "application/json",
 			},
 		})
+
+		return response.data
+	} catch (error) {
+		console.error(error.response ? error.response.data : error.message)
+	}
+}
+const verifyTransaction = async (reference) => {
+	const url = `https://api.paystack.co/transaction/verify/${reference}`
+	const secretKey = process.env.TEST_SECRET
+
+	try {
+		const response = await axios.get(url, params, {
+			headers: {
+				Authorization: `Bearer ${secretKey}`,
+				"Content-Type": "application/json",
+			},
+		})
+
 		return response.data
 	} catch (error) {
 		console.error(error.response ? error.response.data : error.message)
@@ -30,9 +54,48 @@ const initializeTransaction = async (email, amount) => {
 
 app.get("/paystack", async (req, res) => {
 	const { amount, email } = req.query
+	try {
+		const response = await initializeTransaction(email, parseInt(amount))
+		if (response.status !== true) {
+			console.log(response)
+			throw Error("Transaction not initialized.")
+		}
+		const authUrl = response.data.authorization_url
+		console.log("Done")
+		return res.json({
+			success: true,
+			authUrl,
+		})
+	} catch (error) {
+		console.error(error.message)
+	}
+})
 
-	const response = await initializeTransaction(email, parseInt(amount))
-	res.send(response)
+app.get("/paystack/verify", async (req, res) => {
+	const { ref } = req.query
+	try {
+		const response = await verifyTransaction(ref)
+		console.log(response)
+		// if (response.status !== true) {
+		// 	console.log(response)
+		// 	throw Error("Transaction not verified.")
+		// }
+		// const authUrl = response.data.authorization_url
+		// console.log("Done")
+		// return res.json({
+		// 	success: true,
+		// 	authUrl,
+		// })
+	} catch (error) {
+		console.error(error.message)
+	}
+})
+
+app.get("/", (req, res) => {
+	res.status(200).json({
+		success: true,
+		message: "Server running properly",
+	})
 })
 
 app.listen(port, () => {
