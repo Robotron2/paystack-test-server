@@ -51,7 +51,7 @@ const verifyTransaction = async (reference) => {
 	const secretKey = process.env.TEST_SECRET
 
 	try {
-		const response = await axios.get(url, params, {
+		const response = await axios.get(url, {
 			headers: {
 				Authorization: `Bearer ${secretKey}`,
 				"Content-Type": "application/json",
@@ -97,16 +97,14 @@ app.get("/paystack/verify", async (req, res) => {
 	try {
 		const response = await verifyTransaction(ref)
 		console.log(response)
-		// if (response.status !== true) {
-		// 	console.log(response)
-		// 	throw Error("Transaction not verified.")
-		// }
-		// const authUrl = response.data.authorization_url
-		// console.log("Done")
-		// return res.json({
-		// 	success: true,
-		// 	authUrl,
-		// })
+		if (response.status !== true) {
+			console.log(response)
+			throw Error("Transaction not verified.")
+		}
+		return res.json({
+			success: true,
+			message: "Verification successful",
+		})
 	} catch (error) {
 		console.error(error.message)
 	}
